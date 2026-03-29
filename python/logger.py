@@ -9,11 +9,10 @@ import csv
 import os
 from datetime import datetime
 
-# --- НАСТРОЙКИ ---
-COM_PORT = 'COM8'    # ТВОЙ ПОРТ
+COM_PORT = 'COM8'    
 BAUD_RATE = 9600
-MAX_POINTS = 300     # Сколько точек показывать на экране одновременно
-MAX_SAMPLES_TOTAL = 300 # Сколько всего измерений сделать до авто-стопа
+MAX_POINTS = 300     
+MAX_SAMPLES_TOTAL = 300 
 
 class RealTimePlotter:
     def __init__(self, root):
@@ -27,14 +26,12 @@ class RealTimePlotter:
         self.is_running = False 
         self.ser = None
         
-        # Переменные для работы с CSV
         self.csv_file = None
         self.csv_writer = None
 
         self.connect_arduino()
         self.setup_gui()
 
-        # График
         self.fig, self.ax = plt.subplots()
         self.fig.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.15)
         self.line, = self.ax.plot([], [], 'r-', lw=2)
@@ -65,7 +62,6 @@ class RealTimePlotter:
         control_frame = ttk.Frame(self.root)
         control_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=10)
 
-        # Масштаб Y
         ttk.Label(control_frame, text="Min Y:").pack(side=tk.LEFT)
         self.entry_min = ttk.Entry(control_frame, width=8)
         self.entry_min.insert(0, "-200")
@@ -79,7 +75,6 @@ class RealTimePlotter:
         self.btn_scale = ttk.Button(control_frame, text="Set Scale", command=self.update_scale)
         self.btn_scale.pack(side=tk.LEFT, padx=10)
 
-        # Кнопки
         self.btn_start = ttk.Button(control_frame, text="START", command=self.toggle_measurement)
         self.btn_start.pack(side=tk.RIGHT, padx=10)
 
@@ -87,11 +82,11 @@ class RealTimePlotter:
         self.btn_clear.pack(side=tk.RIGHT, padx=5)
 
     def reset_system(self):
-        self.stop_measurement() # Обязательно закрываем файл перед сбросом
+        self.stop_measurement() 
         self.data_x.clear()
         self.data_y.clear()
         self.total_points = 0
-        self.connect_arduino() # Перезагрузка Arduino
+        self.connect_arduino() 
         self.line.set_data([], [])
         self.canvas.draw()
         print("System Reset Done.")
@@ -103,7 +98,6 @@ class RealTimePlotter:
         self.is_running = False
         self.btn_start.config(text="START")
         
-        # Закрываем CSV файл при остановке
         if self.csv_file:
             self.csv_file.close()
             self.csv_file = None
@@ -114,12 +108,9 @@ class RealTimePlotter:
         if not self.ser: return
 
         if not self.is_running:
-            # --- СОЗДАНИЕ НОВОГО CSV ФАЙЛА ПРИ СТАРТЕ ---
-            # Генерируем уникальное имя файла с датой и временем
             filename = datetime.now().strftime("spectrum_%Y%m%d_%H%M%S.csv")
             self.csv_file = open(filename, mode='w', newline='')
             self.csv_writer = csv.writer(self.csv_file)
-            # Записываем заголовки колонок
             self.csv_writer.writerow(["Step_Number", "Intensity"])
             
             self.ser.reset_input_buffer()
@@ -145,13 +136,11 @@ class RealTimePlotter:
                         val = float(line)
                         self.total_points += 1
                         
-                        y_val = -val # Значение, которое идет на график и в файл
+                        y_val = -val
                         
-                        # --- ЗАПИСЬ В CSV ---
                         if self.csv_writer:
                             self.csv_writer.writerow([self.total_points, y_val])
                         
-                        # Авто-стоп по количеству измерений
                         if self.is_running and self.total_points >= MAX_SAMPLES_TOTAL:
                             self.stop_measurement()
                             break
@@ -172,7 +161,7 @@ class RealTimePlotter:
         return self.line,
 
     def on_close(self):
-        self.stop_measurement() # Гарантируем закрытие файла при выходе
+        self.stop_measurement()
         if self.ser:
             self.ser.close()
         self.root.destroy()
