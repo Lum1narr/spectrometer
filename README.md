@@ -22,7 +22,7 @@ The project is divided into three logical software components:
 
 1. **Firmware (`arduino/`):** C++ code running on the Arduino. It steps the motor and simultaneously reads the voltage from the BPW34 photodiode, sending the raw data over the Serial port.
 2. **Data Logger (`python/`):** A Python script using `pyserial` and `pandas`. It listens to the COM port, captures the real-time data stream, and saves it into structured CSV files.
-3. **Analysis (`analysis/`):** Jupyter Notebooks utilizing `matplotlib` to process the raw data. The analysis includes smoothing the signal, calculating Transmittance, and deriving Absorbance.
+3. **Analysis (`notebooks/`):** Jupyter Notebooks utilizing `matplotlib` to process the raw data. The analysis includes smoothing the signal, calculating Transmittance, and deriving Absorbance.
 
 ## 📊 Results and Data Analysis
 
